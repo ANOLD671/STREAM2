@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>StreamMax Advanced Telegram IPTV</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>StreamMax - Mobile IPTV</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -11,142 +11,79 @@
     <!-- HLS.js for streaming -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     
-    <!-- Hammer.js for gestures -->
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
-    
     <!-- Dexie.js for IndexedDB -->
     <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.3/dist/dexie.min.js"></script>
     
-    <!-- Web Audio API Equalizer -->
-    <script src="https://cdn.jsdelivr.net/npm/equalizerjs@1.0.0/dist/equalizer.min.js"></script>
-    
     <style>
-        /* CSS Variables for Theming */
-        :root {
-            --bg: #0e0e0e;
-            --card: #1a1a1a;
-            --accent: #00c3ff;
-            --text: #ffffff;
-            --error: #ff4444;
-            --success: #00c851;
-            --warning: #ffbb33;
-            --font-size: 16px;
-            --contrast: normal;
-        }
-
-        /* High Contrast Mode */
-        .high-contrast {
-            --bg: #000000;
-            --card: #ffffff;
-            --text: #ffff00;
-            --accent: #ff00ff;
-            filter: contrast(200%);
-        }
-
-        /* Color Blind Modes */
-        .protanopia {
-            filter: url(#protanopia);
-        }
-        .deuteranopia {
-            filter: url(#deuteranopia);
-        }
-        .tritanopia {
-            filter: url(#tritanopia);
-        }
-
+        /* Mobile-First CSS */
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.3s, color 0.3s;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            margin: 0;
-            background: var(--bg);
-            color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            font-size: var(--font-size);
+            background: #0a0a0a;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
 
         /* Top Bar */
         #topBar {
+            background: #111;
             padding: 12px;
-            background: color-mix(in srgb, var(--bg) 90%, white);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .search-container {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+            border-bottom: 1px solid #222;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         #searchInput {
-            flex: 1;
-            padding: 14px;
-            background: var(--card);
-            border: none;
-            color: var(--text);
-            border-radius: 25px;
+            width: 100%;
+            padding: 14px 18px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 30px;
+            color: white;
             font-size: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
+            outline: none;
         }
 
-        #voiceSearchBtn {
-            background: var(--accent);
-            border: none;
-            color: black;
-            width: 50px;
-            height: 50px;
-            border-radius: 25px;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        #searchInput:focus {
+            border-color: #00c3ff;
         }
 
         .filter-row {
             display: flex;
             gap: 10px;
-            flex-wrap: wrap;
         }
 
-        select, .filter-btn {
-            padding: 12px 20px;
-            background: var(--card);
-            border: none;
-            color: var(--text);
-            border-radius: 25px;
-            font-size: 15px;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.1);
+        select {
             flex: 1;
-            min-width: 120px;
-        }
-
-        .filter-btn.active {
-            background: var(--accent);
-            color: black;
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: white;
+            font-size: 14px;
+            outline: none;
         }
 
         /* Tabs */
         #tabs {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             overflow-x: auto;
-            padding: 5px 0;
             scrollbar-width: none;
-            -ms-overflow-style: none;
+            padding: 4px 0;
         }
 
         #tabs::-webkit-scrollbar {
@@ -154,112 +91,34 @@
         }
 
         .tab {
-            padding: 12px 25px;
-            background: var(--card);
+            padding: 10px 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
             border-radius: 30px;
-            cursor: pointer;
-            font-size: 16px;
+            color: #999;
+            font-size: 14px;
+            font-weight: 500;
             white-space: nowrap;
-            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
             transition: all 0.2s;
         }
 
         .tab.active {
-            background: var(--accent);
+            background: #00c3ff;
+            border-color: #00c3ff;
             color: black;
-            border-color: var(--accent);
         }
 
-        /* Channel List */
-        #channelList {
-            height: 40vh;
-            overflow-y: auto;
-            padding: 15px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .channel {
-            padding: 18px;
-            background: var(--card);
-            margin-bottom: 12px;
-            border-radius: 18px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: 500;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.1s, background 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .channel:active {
-            transform: scale(0.98);
-        }
-
-        .channel.favorite {
-            border-left: 5px solid var(--accent);
-        }
-
-        .channel-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            flex: 1;
-        }
-
-        .channel-name {
-            font-weight: bold;
-        }
-
-        .channel-meta {
-            font-size: 12px;
-            opacity: 0.7;
-            display: flex;
-            gap: 10px;
-        }
-
-        .channel-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .action-btn {
-            background: transparent;
-            border: none;
-            color: var(--text);
-            font-size: 24px;
-            padding: 8px;
-            cursor: pointer;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-
-        .action-btn:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .action-btn.favorite {
-            color: gold;
-        }
-
-        /* Video Container */
+        /* Video Player */
         #videoContainer {
             position: relative;
             background: black;
-            border-radius: 20px;
-            margin: 15px;
+            height: 30vh;
+            min-height: 200px;
+            margin: 12px;
+            border-radius: 16px;
             overflow: hidden;
-            height: 35vh;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
 
         video {
@@ -275,7 +134,7 @@
             left: 0;
             right: 0;
             background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            padding: 20px 15px 15px;
+            padding: 16px;
             display: flex;
             gap: 15px;
             align-items: center;
@@ -283,227 +142,154 @@
             transition: opacity 0.3s;
         }
 
-        #videoContainer:hover #videoControls,
-        #videoContainer:active #videoControls {
+        #videoContainer:active #videoControls,
+        #videoContainer:hover #videoControls {
             opacity: 1;
         }
 
         .control-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
             width: 44px;
             height: 44px;
             border-radius: 22px;
-            font-size: 20px;
-            cursor: pointer;
+            background: rgba(255,255,255,0.2);
             backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
 
         #progressBar {
             flex: 1;
-            height: 5px;
+            height: 4px;
             background: rgba(255,255,255,0.3);
-            border-radius: 5px;
+            border-radius: 4px;
             position: relative;
             cursor: pointer;
         }
 
         #progressFill {
             height: 100%;
-            background: var(--accent);
-            border-radius: 5px;
+            background: #00c3ff;
+            border-radius: 4px;
             width: 0%;
         }
 
         /* Bottom Bar */
         #bottomBar {
             display: flex;
-            gap: 10px;
-            padding: 15px;
-            background: var(--bg);
-            border-top: 1px solid rgba(255,255,255,0.1);
+            gap: 8px;
+            padding: 8px 12px;
+            background: #111;
+            border-top: 1px solid #222;
         }
 
         .bottom-btn {
             flex: 1;
-            padding: 15px;
-            font-size: 16px;
-            background: var(--card);
-            border: none;
-            color: var(--text);
+            padding: 12px;
+            background: #1a1a1a;
+            border: 1px solid #333;
             border-radius: 30px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
+            gap: 6px;
         }
 
         .bottom-btn.primary {
-            background: var(--accent);
+            background: #00c3ff;
+            border-color: #00c3ff;
             color: black;
         }
 
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            padding: 20px;
+        /* Channel List - LIST VIEW ONLY */
+        #channelList {
+            flex: 1;
             overflow-y: auto;
+            padding: 12px;
+            display: block !important;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .modal.active {
+        .channel {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 10px;
             display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            position: sticky;
-            top: 0;
-            background: var(--bg);
-            z-index: 10;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        .modal-content {
+        .channel:active {
+            background: #252525;
+            transform: scale(0.99);
+        }
+
+        .channel-info {
             flex: 1;
         }
 
-        .close-btn {
-            background: none;
-            border: none;
+        .channel-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
             color: white;
-            font-size: 28px;
-            cursor: pointer;
-            padding: 10px;
         }
 
-        /* Settings Grid */
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            padding: 15px 0;
-        }
-
-        .setting-item {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 20px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .setting-item.active {
-            background: var(--accent);
-            color: black;
-        }
-
-        .setting-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            padding: 15px 0;
-        }
-
-        .stat-card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stat-value {
-            font-size: 36px;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.7;
-            margin-top: 5px;
-        }
-
-        /* EPG Grid */
-        .epg-grid {
-            display: grid;
-            gap: 2px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .epg-row {
-            display: grid;
-            grid-template-columns: 100px 1fr;
-            background: var(--card);
-        }
-
-        .epg-time {
-            padding: 10px;
-            background: var(--bg);
-            font-weight: bold;
-        }
-
-        .epg-program {
-            padding: 10px;
-            border-left: 2px solid var(--accent);
-        }
-
-        /* Equalizer */
-        .equalizer {
+        .channel-meta {
+            font-size: 12px;
+            color: #888;
             display: flex;
-            gap: 5px;
-            height: 200px;
-            align-items: flex-end;
-            justify-content: center;
-            padding: 20px;
+            gap: 8px;
         }
 
-        .eq-band {
-            width: 30px;
-            background: var(--accent);
-            border-radius: 15px 15px 0 0;
+        .channel-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: #252525;
+            border: 1px solid #333;
+            color: white;
+            font-size: 20px;
             cursor: pointer;
-            transition: height 0.1s;
-            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .eq-band::after {
-            content: attr(data-freq);
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10px;
-            white-space: nowrap;
+        .action-btn.fav-btn.active {
+            color: gold;
         }
 
-        /* Toast Notifications */
+        /* Message */
+        #message {
+            text-align: center;
+            padding: 12px;
+            font-size: 14px;
+            color: #888;
+            background: #1a1a1a;
+            margin: 0 12px 12px;
+            border-radius: 30px;
+            display: none;
+        }
+
+        /* Toast */
         #toast {
             position: fixed;
             bottom: 80px;
@@ -511,15 +297,16 @@
             right: 20px;
             background: rgba(0,0,0,0.9);
             color: white;
-            padding: 15px 25px;
+            padding: 14px 20px;
             border-radius: 30px;
             text-align: center;
-            z-index: 2000;
+            font-size: 14px;
+            z-index: 1000;
             transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid #333;
         }
 
         #toast.show {
@@ -531,8 +318,8 @@
         .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid rgba(255,255,255,0.1);
-            border-left-color: var(--accent);
+            border: 3px solid #333;
+            border-top-color: #00c3ff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 20px auto;
@@ -542,95 +329,53 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Empty States */
+        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
-            opacity: 0.6;
+            color: #666;
+            font-size: 16px;
         }
 
-        .empty-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        /* Hide grid view elements */
+        #gridViewBtn, #listViewBtn {
+            display: none !important;
         }
     </style>
 </head>
 <body>
-    <!-- SVG Filters for Color Blindness -->
-    <svg style="display: none;">
-        <filter id="protanopia">
-            <feColorMatrix type="matrix" values="0.567,0.433,0,0,0 0.558,0.442,0,0,0 0,0.242,0.758,0,0 0,0,0,1,0"/>
-        </filter>
-        <filter id="deuteranopia">
-            <feColorMatrix type="matrix" values="0.625,0.375,0,0,0 0.7,0.3,0,0,0 0,0.3,0.7,0,0 0,0,0,1,0"/>
-        </filter>
-        <filter id="tritanopia">
-            <feColorMatrix type="matrix" values="0.95,0.05,0,0,0 0,0.433,0.567,0,0 0,0.475,0.525,0,0 0,0,0,1,0"/>
-        </filter>
-    </svg>
-
-    <!-- Main UI -->
+    <!-- Top Bar -->
     <div id="topBar">
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="🔍 Search channels..." autocomplete="off">
-            <button id="voiceSearchBtn">🎤</button>
-        </div>
+        <input type="text" id="searchInput" placeholder="🔍 Search channels..." autocomplete="off">
         
         <div class="filter-row">
             <select id="countryFilter">
                 <option value="all">🌍 All Countries</option>
             </select>
-            <select id="languageFilter">
-                <option value="all">🗣️ All Languages</option>
-                <option value="en">English</option>
-                <option value="es">Spanish</option>
-                <option value="fr">French</option>
-                <option value="de">German</option>
-                <option value="it">Italian</option>
-                <option value="pt">Portuguese</option>
-                <option value="ru">Russian</option>
-                <option value="ar">Arabic</option>
-                <option value="hi">Hindi</option>
-                <option value="zh">Chinese</option>
-                <option value="ja">Japanese</option>
-                <option value="ko">Korean</option>
-            </select>
             <select id="categoryFilter">
                 <option value="all">📺 All Categories</option>
-                <option value="news">News</option>
-                <option value="sports">Sports</option>
-                <option value="entertainment">Entertainment</option>
-                <option value="music">Music</option>
-                <option value="movies">Movies</option>
-                <option value="documentary">Documentary</option>
-                <option value="kids">Kids</option>
-                <option value="education">Education</option>
             </select>
-        </div>
-
-        <div class="filter-row">
-            <button id="gridViewBtn" class="filter-btn active">📱 Grid</button>
-            <button id="listViewBtn" class="filter-btn">📋 List</button>
-            <button id="sortBtn" class="filter-btn">🔤 A-Z</button>
         </div>
 
         <div id="tabs">
-            <div class="tab active" data-type="all">📺 All Channels</div>
-            <div class="tab" data-type="favorites">⭐ My Library</div>
-            <div class="tab" data-type="recent">🕒 Recently Watched</div>
-            <div class="tab" data-type="recommended">🤖 Recommended</div>
-            <div class="tab" data-type="groups">📁 Groups</div>
-            <div class="tab" data-type="epg">📅 TV Guide</div>
+            <div class="tab active" data-type="all">📺 All</div>
+            <div class="tab" data-type="favorites">⭐ Favorites</div>
+            <div class="tab" data-type="recent">🕒 Recent</div>
         </div>
     </div>
 
+    <!-- Video Player -->
     <div id="videoContainer">
         <video id="video" playsinline webkit-playsinline></video>
         <div id="videoControls">
             <button class="control-btn" id="playPauseBtn">⏸️</button>
             <button class="control-btn" id="audioOnlyBtn">🔊</button>
-            <button class="control-btn" id="pipBtn">📌</button>
-            <button class="control-btn" id="speedBtn">1x</button>
             <div id="progressBar">
                 <div id="progressFill"></div>
             </div>
@@ -638,293 +383,169 @@
         </div>
     </div>
 
+    <!-- Bottom Bar -->
     <div id="bottomBar">
-        <button class="bottom-btn" id="sleepTimerBtn">⏰ Sleep</button>
-        <button class="bottom-btn" id="equalizerBtn">🎚️ EQ</button>
-        <button class="bottom-btn" id="statsBtn">📊 Stats</button>
-        <button class="bottom-btn" id="settingsBtn">⚙️ Settings</button>
+        <button class="bottom-btn" id="sleepTimerBtn">⏰ 30m</button>
+        <button class="bottom-btn primary" id="fullscreenBtn2">📱 Fullscreen</button>
+        <button class="bottom-btn" id="settingsBtn">⚙️</button>
     </div>
 
-    <div id="channelList">Loading channels...</div>
+    <!-- Message -->
+    <div id="message"></div>
 
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="modal">
-        <div class="modal-header">
-            <h2>⚙️ Settings</h2>
-            <button class="close-btn">&times;</button>
-        </div>
-        <div class="modal-content">
-            <div class="settings-grid">
-                <div class="setting-item" data-setting="theme">
-                    <div class="setting-icon">🎨</div>
-                    <div>Theme</div>
-                </div>
-                <div class="setting-item" data-setting="contrast">
-                    <div class="setting-icon">👁️</div>
-                    <div>High Contrast</div>
-                </div>
-                <div class="setting-item" data-setting="colorblind">
-                    <div class="setting-icon">🌈</div>
-                    <div>Color Blind</div>
-                </div>
-                <div class="setting-item" data-setting="font">
-                    <div class="setting-icon">🔤</div>
-                    <div>Font Size</div>
-                </div>
-                <div class="setting-item" data-setting="privacy">
-                    <div class="setting-icon">🔒</div>
-                    <div>Privacy</div>
-                </div>
-                <div class="setting-item" data-setting="cache">
-                    <div class="setting-icon">💾</div>
-                    <div>Cache</div>
-                </div>
-                <div class="setting-item" data-setting="backup">
-                    <div class="setting-icon">☁️</div>
-                    <div>Backup</div>
-                </div>
-                <div class="setting-item" data-setting="clear">
-                    <div class="setting-icon">🗑️</div>
-                    <div>Clear Data</div>
-                </div>
-            </div>
-        </div>
+    <!-- Channel List -->
+    <div id="channelList">
+        <div class="spinner"></div>
+        <div style="text-align: center; color: #666; margin-top: 10px;">Loading channels...</div>
     </div>
 
-    <!-- Equalizer Modal -->
-    <div id="equalizerModal" class="modal">
-        <div class="modal-header">
-            <h2>🎚️ Equalizer</h2>
-            <button class="close-btn">&times;</button>
-        </div>
-        <div class="modal-content">
-            <div class="equalizer" id="equalizer"></div>
-            <div style="display: flex; gap: 10px; margin-top: 40px;">
-                <button class="bottom-btn" id="eqReset">Reset</button>
-                <button class="bottom-btn primary" id="eqSave">Apply</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Stats Modal -->
-    <div id="statsModal" class="modal">
-        <div class="modal-header">
-            <h2>📊 Statistics</h2>
-            <button class="close-btn">&times;</button>
-        </div>
-        <div class="modal-content">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="watchTimeStat">0</div>
-                    <div class="stat-label">Hours Watched</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="channelsWatchedStat">0</div>
-                    <div class="stat-label">Channels Watched</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="favoritesStat">0</div>
-                    <div class="stat-label">Favorites</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="successRateStat">0%</div>
-                    <div class="stat-label">Stream Success</div>
-                </div>
-            </div>
-            <div style="margin-top: 20px;">
-                <h3>Most Watched</h3>
-                <div id="mostWatchedList"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- EPG Modal -->
-    <div id="epgModal" class="modal">
-        <div class="modal-header">
-            <h2>📅 TV Guide</h2>
-            <button class="close-btn">&times;</button>
-        </div>
-        <div class="modal-content">
-            <div class="filter-row" style="margin-bottom: 20px;">
-                <select id="epgChannelSelect">
-                    <option value="">Select Channel</option>
-                </select>
-                <button id="epgToday" class="filter-btn">Today</button>
-                <button id="epgTomorrow" class="filter-btn">Tomorrow</button>
-            </div>
-            <div id="epgDisplay"></div>
-        </div>
-    </div>
-
-    <!-- Group Management Modal -->
-    <div id="groupModal" class="modal">
-        <div class="modal-header">
-            <h2>📁 Channel Groups</h2>
-            <button class="close-btn">&times;</button>
-        </div>
-        <div class="modal-content">
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <input type="text" id="newGroupName" placeholder="New group name" style="flex: 1; padding: 15px; background: var(--card); border: none; color: white; border-radius: 10px;">
-                <button id="createGroupBtn" class="bottom-btn primary">Create</button>
-            </div>
-            <div id="groupsList"></div>
-        </div>
-    </div>
-
-    <!-- PIN Lock Modal -->
-    <div id="pinModal" class="modal">
-        <div class="modal-header">
-            <h2>🔒 Enter PIN</h2>
-            <button class="close-btn">&times;</button>
-        </div>
-        <div class="modal-content">
-            <div style="text-align: center;">
-                <input type="password" id="pinInput" maxlength="4" pattern="\d*" inputmode="numeric" style="width: 200px; padding: 20px; font-size: 32px; text-align: center; background: var(--card); border: none; color: white; border-radius: 20px; margin: 20px auto;">
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 300px; margin: 20px auto;">
-                    <button class="bottom-btn pin-btn">1</button>
-                    <button class="bottom-btn pin-btn">2</button>
-                    <button class="bottom-btn pin-btn">3</button>
-                    <button class="bottom-btn pin-btn">4</button>
-                    <button class="bottom-btn pin-btn">5</button>
-                    <button class="bottom-btn pin-btn">6</button>
-                    <button class="bottom-btn pin-btn">7</button>
-                    <button class="bottom-btn pin-btn">8</button>
-                    <button class="bottom-btn pin-btn">9</button>
-                    <button class="bottom-btn pin-btn">⌫</button>
-                    <button class="bottom-btn pin-btn">0</button>
-                    <button class="bottom-btn pin-btn">✓</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
+    <!-- Toast -->
     <div id="toast"></div>
 
-    <!-- Service Worker Registration -->
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(console.error);
-        }
-    </script>
-
-    <script>
-        // Initialize Telegram Web App
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.enableClosingConfirmation();
-
-        // Haptic feedback helper
-        const haptic = {
-            impact: (style = 'medium') => tg.HapticFeedback?.impactOccurred(style),
-            notification: (type = 'success') => tg.HapticFeedback?.notificationOccurred(type),
-            selection: () => tg.HapticFeedback?.selectionChanged()
-        };
-
-        // ========== DATABASE SETUP (IndexedDB) ==========
-        const db = new Dexie('StreamMaxDB');
-        db.version(1).stores({
-            channels: 'url, name, country, language, category, logo',
-            favorites: 'url, name, country, language, category, logo, timestamp',
-            history: '++id, url, name, timestamp, watchTime',
-            groups: '++id, name, channels',
-            settings: 'key, value',
-            stats: 'key, value'
-        });
-
-        // ========== GLOBAL VARIABLES ==========
-        const M3U_URL = "https://iptv-org.github.io/iptv/index.m3u";
-        const channelListDiv = document.getElementById("channelList");
-        const video = document.getElementById("video");
-        const searchInput = document.getElementById("searchInput");
-        const countryFilter = document.getElementById("countryFilter");
-        const languageFilter = document.getElementById("languageFilter");
-        const categoryFilter = document.getElementById("categoryFilter");
-        const toast = document.getElementById("toast");
-
-        let allChannels = [];
-        let currentTab = "all";
-        let currentGroup = null;
-        let currentView = "grid";
-        let currentSort = "name";
-        let hls = null;
-        let audioContext = null;
-        let equalizer = null;
-        let watchTimer = null;
-        let sleepTimer = null;
-        let preloadQueue = [];
-        let lastPlayed = null;
-        let privateMode = false;
-        let pinEnabled = false;
-        let pinCode = null;
-
         // ========== INITIALIZATION ==========
-        async function init() {
-            await loadSettings();
-            await loadChannels();
-            setupEventListeners();
-            setupGestures();
-            setupTelegramFeatures();
-            await restoreSession();
-            updateStats();
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.expand();
+            tg.enableClosingConfirmation();
+        }
+
+        // DOM Elements
+        const channelListDiv = document.getElementById('channelList');
+        const video = document.getElementById('video');
+        const searchInput = document.getElementById('searchInput');
+        const countryFilter = document.getElementById('countryFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const message = document.getElementById('message');
+        const toast = document.getElementById('toast');
+
+        // Global Variables
+        const M3U_URL = 'https://iptv-org.github.io/iptv/index.m3u';
+        let allChannels = [];
+        let currentTab = 'all';
+        let hls = null;
+        let favorites = new Set();
+        let recentChannels = [];
+
+        // ========== LOAD FAVORITES ==========
+        function loadFavorites() {
+            try {
+                const saved = localStorage.getItem('favorites');
+                if (saved) {
+                    favorites = new Set(JSON.parse(saved));
+                }
+            } catch (e) {
+                console.error('Failed to load favorites:', e);
+            }
+        }
+
+        function saveFavorites() {
+            try {
+                localStorage.setItem('favorites', JSON.stringify([...favorites]));
+            } catch (e) {
+                console.error('Failed to save favorites:', e);
+            }
+        }
+
+        function toggleFavorite(url) {
+            if (favorites.has(url)) {
+                favorites.delete(url);
+                showToast('❌ Removed from favorites');
+            } else {
+                favorites.add(url);
+                showToast('⭐ Added to favorites');
+                
+                // Haptic feedback
+                if (tg?.HapticFeedback) {
+                    tg.HapticFeedback.impactOccurred('medium');
+                }
+            }
+            saveFavorites();
+            renderChannels();
+        }
+
+        function isFavorite(url) {
+            return favorites.has(url);
+        }
+
+        // ========== LOAD RECENT ==========
+        function loadRecent() {
+            try {
+                const saved = localStorage.getItem('recent');
+                if (saved) {
+                    recentChannels = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Failed to load recent:', e);
+            }
+        }
+
+        function saveRecent(channel) {
+            try {
+                // Remove if exists
+                recentChannels = recentChannels.filter(c => c.url !== channel.url);
+                // Add to front
+                recentChannels.unshift(channel);
+                // Keep only last 20
+                recentChannels = recentChannels.slice(0, 20);
+                localStorage.setItem('recent', JSON.stringify(recentChannels));
+            } catch (e) {
+                console.error('Failed to save recent:', e);
+            }
         }
 
         // ========== LOAD CHANNELS ==========
         async function loadChannels() {
             try {
-                showToast("📡 Loading channels...", "info");
+                showToast('📡 Loading channels...');
                 
-                // Try to load from IndexedDB first
-                const cached = await db.channels.count();
-                if (cached > 0) {
-                    allChannels = await db.channels.toArray();
-                    renderChannels();
-                    showToast(`✅ Loaded ${cached} channels from cache`, "success");
-                }
-
-                // Fetch fresh data in background
-                const response = await fetch(M3U_URL);
-                const text = await response.text();
-                const freshChannels = parseM3U(text);
-                
-                if (freshChannels.length > 0) {
-                    allChannels = freshChannels;
-                    await db.channels.bulkPut(freshChannels);
+                // Try cache first
+                const cached = localStorage.getItem('cachedChannels');
+                if (cached) {
+                    allChannels = JSON.parse(cached);
                     renderChannels();
                     populateFilters();
-                    showToast(`✅ Loaded ${freshChannels.length} channels`, "success");
                 }
+
+                // Fetch fresh
+                const response = await fetch(M3U_URL);
+                const text = await response.text();
+                allChannels = parseM3U(text);
+                
+                // Cache channels
+                localStorage.setItem('cachedChannels', JSON.stringify(allChannels));
+                localStorage.setItem('channelsLastUpdated', Date.now().toString());
+                
+                renderChannels();
+                populateFilters();
+                showToast(`✅ Loaded ${allChannels.length} channels`);
+                
             } catch (error) {
-                console.error("Channel load error:", error);
-                channelListDiv.innerHTML = '<div class="empty-state"><div class="empty-icon">❌</div><div>Failed to load channels. Using cached data if available.</div></div>';
+                console.error('Failed to load channels:', error);
+                channelListDiv.innerHTML = '<div class="empty-state"><div class="icon">❌</div><div>Failed to load channels</div></div>';
+                showToast('❌ Connection failed');
             }
         }
 
         // ========== PARSE M3U ==========
         function parseM3U(content) {
-            const lines = content.split("\n");
+            const lines = content.split('\n');
             const channels = [];
 
             for (let i = 0; i < lines.length; i++) {
-                if (lines[i].startsWith("#EXTINF")) {
-                    const name = lines[i].split(",").pop().trim();
+                if (lines[i].startsWith('#EXTINF')) {
+                    const name = lines[i].split(',').pop().trim();
                     const url = lines[i + 1]?.trim();
                     
-                    // Extract metadata
-                    const country = lines[i].match(/tvg-country="(.*?)"/)?.[1] || "Unknown";
-                    const language = lines[i].match(/tvg-language="(.*?)"/)?.[1] || "Unknown";
-                    const category = lines[i].match(/group-title="(.*?)"/)?.[1] || "Uncategorized";
-                    const logo = lines[i].match(/tvg-logo="(.*?)"/)?.[1] || "";
+                    const country = lines[i].match(/tvg-country="(.*?)"/)?.[1] || 'Unknown';
+                    const category = lines[i].match(/group-title="(.*?)"/)?.[1] || 'General';
                     
-                    if (url && url.startsWith("http")) {
+                    if (url && url.startsWith('http')) {
                         channels.push({ 
                             name, 
                             url, 
                             country, 
-                            language, 
-                            category,
-                            logo,
-                            timestamp: Date.now()
+                            category
                         });
                     }
                 }
@@ -932,762 +553,334 @@
             return channels;
         }
 
-        // ========== RENDER CHANNELS ==========
+        // ========== POPULATE FILTERS ==========
+        function populateFilters() {
+            // Countries
+            const countries = [...new Set(allChannels.map(c => c.country))].sort();
+            countryFilter.innerHTML = '<option value="all">🌍 All Countries</option>';
+            countries.forEach(country => {
+                if (country && country !== 'Unknown') {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    countryFilter.appendChild(option);
+                }
+            });
+
+            // Categories
+            const categories = [...new Set(allChannels.map(c => c.category))].sort();
+            categoryFilter.innerHTML = '<option value="all">📺 All Categories</option>';
+            categories.forEach(category => {
+                if (category && category !== 'General') {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categoryFilter.appendChild(option);
+                }
+            });
+        }
+
+        // ========== GET FILTERED CHANNELS ==========
+        function getFilteredChannels() {
+            let filtered = [...allChannels];
+            
+            // Tab filter
+            if (currentTab === 'favorites') {
+                filtered = filtered.filter(c => favorites.has(c.url));
+            } else if (currentTab === 'recent') {
+                return recentChannels;
+            }
+            
+            // Country filter
+            if (countryFilter.value !== 'all') {
+                filtered = filtered.filter(c => c.country === countryFilter.value);
+            }
+            
+            // Category filter
+            if (categoryFilter.value !== 'all') {
+                filtered = filtered.filter(c => c.category === categoryFilter.value);
+            }
+            
+            // Search filter
+            if (searchInput.value) {
+                const query = searchInput.value.toLowerCase();
+                filtered = filtered.filter(c => 
+                    c.name.toLowerCase().includes(query) ||
+                    c.country.toLowerCase().includes(query)
+                );
+            }
+            
+            // Sort by name
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
+            
+            return filtered;
+        }
+
+        // ========== RENDER CHANNELS (LIST ONLY) ==========
         function renderChannels() {
             const filtered = getFilteredChannels();
             
             if (filtered.length === 0) {
-                channelListDiv.innerHTML = '<div class="empty-state"><div class="empty-icon">📺</div><div>No channels found</div></div>';
+                channelListDiv.innerHTML = '<div class="empty-state"><div class="icon">📺</div><div>No channels found</div></div>';
                 return;
             }
 
-            if (currentView === "grid") {
-                renderGridView(filtered);
-            } else {
-                renderListView(filtered);
-            }
-
-            // Preload first few channels
-            preloadChannels(filtered.slice(0, 5));
-        }
-
-        function renderGridView(channels) {
-            channelListDiv.style.display = 'grid';
-            channelListDiv.style.gridTemplateColumns = 'repeat(auto-fill, minmax(160px, 1fr))';
-            channelListDiv.style.gap = '12px';
-            channelListDiv.innerHTML = '';
-
-            channels.slice(0, 50).forEach(ch => {
-                const div = document.createElement('div');
-                div.className = 'channel';
-                div.style.flexDirection = 'column';
-                div.style.alignItems = 'flex-start';
-                div.style.padding = '15px';
+            let html = '';
+            
+            filtered.slice(0, 50).forEach(ch => {
+                const isFav = isFavorite(ch.url);
                 
-                div.innerHTML = `
-                    <div style="width: 100%; aspect-ratio: 16/9; background: #333; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 32px;">📺</div>
-                    <div class="channel-info" style="width: 100%;">
-                        <div class="channel-name" style="font-size: 14px;">${ch.name}</div>
-                        <div class="channel-meta">${ch.country} • ${ch.category}</div>
-                    </div>
-                    <div class="channel-actions" style="width: 100%; justify-content: space-between;">
-                        <button class="action-btn fav-btn" data-url="${ch.url}">${isFavorite(ch.url) ? '⭐' : '☆'}</button>
-                        <button class="action-btn play-btn" data-url="${ch.url}">▶️</button>
+                html += `
+                    <div class="channel" data-url="${ch.url}">
+                        <div class="channel-info">
+                            <div class="channel-name">${ch.name}</div>
+                            <div class="channel-meta">${ch.country} • ${ch.category}</div>
+                        </div>
+                        <div class="channel-actions">
+                            <button class="action-btn fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite('${ch.url}')">
+                                ${isFav ? '⭐' : '☆'}
+                            </button>
+                            <button class="action-btn play-btn" onclick="event.stopPropagation(); playStream(${JSON.stringify(ch).replace(/"/g, '&quot;')})">
+                                ▶️
+                            </button>
+                        </div>
                     </div>
                 `;
-
-                div.querySelector('.play-btn').onclick = (e) => {
-                    e.stopPropagation();
-                    playStream(ch);
-                };
-
-                div.querySelector('.fav-btn').onclick = (e) => {
-                    e.stopPropagation();
-                    toggleFavorite(ch);
-                };
-
-                channelListDiv.appendChild(div);
+            });
+            
+            channelListDiv.innerHTML = html;
+            
+            // Add click handlers for channel items
+            document.querySelectorAll('.channel').forEach(el => {
+                el.addEventListener('click', () => {
+                    const url = el.dataset.url;
+                    const channel = allChannels.find(c => c.url === url);
+                    if (channel) playStream(channel);
+                });
             });
         }
 
-        function renderListView(channels) {
-            channelListDiv.style.display = 'block';
-            channelListDiv.innerHTML = '';
-
-            channels.slice(0, 50).forEach(ch => {
-                const div = document.createElement('div');
-                div.className = 'channel';
-                
-                div.innerHTML = `
-                    <div class="channel-info">
-                        <div class="channel-name">${ch.name}</div>
-                        <div class="channel-meta">${ch.country} • ${ch.category}</div>
-                    </div>
-                    <div class="channel-actions">
-                        <button class="action-btn fav-btn" data-url="${ch.url}">${isFavorite(ch.url) ? '⭐' : '☆'}</button>
-                        <button class="action-btn play-btn" data-url="${ch.url}">▶️</button>
-                    </div>
-                `;
-
-                div.querySelector('.play-btn').onclick = (e) => {
-                    e.stopPropagation();
-                    playStream(ch);
-                };
-
-                div.querySelector('.fav-btn').onclick = (e) => {
-                    e.stopPropagation();
-                    toggleFavorite(ch);
-                };
-
-                channelListDiv.appendChild(div);
-            });
-        }
-
-        // ========== FAVORITES SYSTEM ==========
-        async function isFavorite(url) {
-            const fav = await db.favorites.get(url);
-            return !!fav;
-        }
-
-        async function toggleFavorite(channel) {
-            haptic.impact();
-            
-            const exists = await db.favorites.get(channel.url);
-            
-            if (exists) {
-                await db.favorites.delete(channel.url);
-                showToast(`❌ Removed ${channel.name} from favorites`, "info");
-            } else {
-                await db.favorites.put({ ...channel, timestamp: Date.now() });
-                showToast(`⭐ Added ${channel.name} to favorites`, "success");
-                
-                // Sync to Telegram Cloud
-                try {
-                    const favs = await db.favorites.toArray();
-                    tg.CloudStorage?.setItem('favorites', JSON.stringify(favs.map(f => f.url)));
-                } catch (e) {}
-            }
-            
-            renderChannels();
-            updateStats();
-        }
-
-        // ========== STREAM PLAYER ==========
-        async function playStream(channel) {
-            haptic.impact('heavy');
-            
+        // ========== PLAY STREAM (OPTIMIZED) ==========
+        function playStream(channel) {
             if (!channel) return;
             
-            // Save to history
-            if (!privateMode) {
-                await db.history.add({
-                    ...channel,
-                    timestamp: Date.now(),
-                    watchTime: 0
-                });
+            message.style.display = 'block';
+            message.innerHTML = '⚡ Loading stream...';
+            
+            // Save to recent
+            saveRecent(channel);
+            
+            // Haptic feedback
+            if (tg?.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('heavy');
             }
             
-            lastPlayed = channel;
-            
-            // Show loading
-            showToast(`📡 Loading ${channel.name}...`, "info");
-            
-            // Update Telegram Main Button
-            tg.MainButton.setText(`Now Playing: ${channel.name}`);
-            tg.MainButton.show();
-            
-            // Clean up previous stream
+            // Kill previous stream
             if (hls) {
                 hls.destroy();
                 hls = null;
             }
             
-            // Stop current video
+            // Clear video
             video.pause();
             video.removeAttribute('src');
             video.load();
             
-            // Start watch timer
-            startWatchTimer();
+            // Preconnect to domain
+            try {
+                const domain = new URL(channel.url).origin;
+                const link = document.createElement('link');
+                link.rel = 'preconnect';
+                link.href = domain;
+                document.head.appendChild(link);
+                setTimeout(() => {
+                    if (link.parentNode) link.parentNode.removeChild(link);
+                }, 5000);
+            } catch (e) {}
             
-            // Play new stream
+            // Play stream
             if (Hls.isSupported()) {
                 hls = new Hls({
-                    maxBufferLength: 30,
-                    maxMaxBufferLength: 60,
+                    maxBufferLength: 10,
+                    maxMaxBufferLength: 20,
+                    startLevel: 1,
                     enableWorker: true,
                     lowLatencyMode: true,
-                    backBufferLength: 60
+                    fragLoadingTimeOut: 10000,
+                    manifestLoadingTimeOut: 5000
                 });
                 
                 hls.loadSource(channel.url);
                 hls.attachMedia(video);
                 
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    video.play().catch(e => {
-                        showToast("⚠️ Tap to play", "warning");
+                    message.style.display = 'none';
+                    video.play().catch(() => {
+                        message.innerHTML = '▶️ Tap to play';
                     });
                 });
                 
                 hls.on(Hls.Events.ERROR, (event, data) => {
                     if (data.fatal) {
-                        showToast("❌ Stream error", "error");
+                        message.innerHTML = '❌ Stream failed';
+                        message.style.display = 'block';
                     }
                 });
+                
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = channel.url;
+                video.onloadedmetadata = () => {
+                    message.style.display = 'none';
+                    video.play().catch(() => {});
+                };
             } else {
                 video.src = channel.url;
-                video.play().catch(() => {});
+                message.style.display = 'none';
             }
         }
 
-        // ========== BACKGROUND PRELOADING ==========
-        function preloadChannels(channels) {
-            channels.forEach(ch => {
-                if (!preloadQueue.includes(ch.url)) {
-                    preloadQueue.push(ch.url);
-                    
-                    const preloader = new Hls({
-                        maxBufferLength: 2,
-                        autoStartLoad: false
-                    });
-                    
-                    preloader.loadSource(ch.url);
-                    
-                    // Clean up after 30 seconds
-                    setTimeout(() => {
-                        const index = preloadQueue.indexOf(ch.url);
-                        if (index > -1) {
-                            preloadQueue.splice(index, 1);
-                            preloader.destroy();
-                        }
-                    }, 30000);
-                }
-            });
-        }
-
-        // ========== AUDIO EQUALIZER ==========
-        function setupEqualizer() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const source = audioContext.createMediaElementSource(video);
-                equalizer = new Equalizer(audioContext, source);
-            }
-            
-            // Create UI
-            const eqDiv = document.getElementById('equalizer');
-            eqDiv.innerHTML = '';
-            
-            for (let i = 0; i < 10; i++) {
-                const band = document.createElement('div');
-                band.className = 'eq-band';
-                band.setAttribute('data-freq', `${60 * Math.pow(2, i)}Hz`);
-                band.style.height = '100px';
-                
-                band.onmousedown = (e) => {
-                    const startY = e.clientY;
-                    const startHeight = parseInt(band.style.height);
-                    
-                    const onMove = (e) => {
-                        const delta = startY - e.clientY;
-                        const newHeight = Math.max(20, Math.min(200, startHeight + delta));
-                        band.style.height = newHeight + 'px';
-                        equalizer.setGain(i, (newHeight - 100) / 50);
-                    };
-                    
-                    const onUp = () => {
-                        document.removeEventListener('mousemove', onMove);
-                        document.removeEventListener('mouseup', onUp);
-                    };
-                    
-                    document.addEventListener('mousemove', onMove);
-                    document.addEventListener('mouseup', onUp);
-                };
-                
-                eqDiv.appendChild(band);
-            }
-        }
-
-        // ========== PICTURE-IN-PICTURE ==========
-        async function togglePiP() {
-            try {
-                if (document.pictureInPictureElement) {
-                    await document.exitPictureInPicture();
-                } else {
-                    await video.requestPictureInPicture();
-                }
-            } catch (error) {
-                showToast("PiP not supported", "error");
+        // ========== FULLSCREEN (MOBILE FIX) ==========
+        function enterFullscreen() {
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.webkitEnterFullscreen) {
+                video.webkitEnterFullscreen();
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            } else if (video.mozRequestFullScreen) {
+                video.mozRequestFullScreen();
+            } else if (video.msRequestFullscreen) {
+                video.msRequestFullscreen();
             }
         }
 
         // ========== SLEEP TIMER ==========
-        function setSleepTimer(minutes) {
+        let sleepTimer = null;
+        function setSleepTimer(minutes = 30) {
             if (sleepTimer) clearTimeout(sleepTimer);
             
             sleepTimer = setTimeout(() => {
                 video.pause();
-                showToast("⏰ Sleep timer: Video paused", "info");
-                tg.MainButton.hide();
+                showToast('⏰ Sleep timer: Video paused');
+                if (tg?.MainButton) tg.MainButton.hide();
             }, minutes * 60000);
             
-            showToast(`⏰ Sleep timer set for ${minutes} minutes`, "success");
+            showToast(`⏰ Sleep timer: ${minutes} minutes`);
         }
 
-        // ========== WATCH TIMER ==========
-        function startWatchTimer() {
-            if (watchTimer) clearInterval(watchTimer);
-            
-            let seconds = 0;
-            watchTimer = setInterval(async () => {
-                seconds++;
-                
-                // Update stats every minute
-                if (seconds % 60 === 0) {
-                    const stats = await db.stats.get('watchTime') || { value: 0 };
-                    await db.stats.put({ key: 'watchTime', value: stats.value + 1 });
-                    updateStats();
-                }
-            }, 1000);
-        }
-
-        // ========== STATISTICS ==========
-        async function updateStats() {
-            const history = await db.history.toArray();
-            const favorites = await db.favorites.count();
-            const watchTime = await db.stats.get('watchTime') || { value: 0 };
-            
-            document.getElementById('watchTimeStat').textContent = Math.round(watchTime.value);
-            document.getElementById('channelsWatchedStat').textContent = new Set(history.map(h => h.url)).size;
-            document.getElementById('favoritesStat').textContent = favorites;
-            
-            // Most watched
-            const counts = {};
-            history.forEach(h => counts[h.url] = (counts[h.url] || 0) + 1);
-            
-            const mostWatched = Object.entries(counts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
-            
-            const listDiv = document.getElementById('mostWatchedList');
-            if (listDiv) {
-                listDiv.innerHTML = '';
-                for (const [url, count] of mostWatched) {
-                    const channel = allChannels.find(c => c.url === url);
-                    if (channel) {
-                        listDiv.innerHTML += `<div style="padding: 10px; background: var(--card); margin: 5px 0; border-radius: 10px;">${channel.name} (${count} views)</div>`;
-                    }
-                }
-            }
-        }
-
-        // ========== FILTERING ==========
-        function getFilteredChannels() {
-            let filtered = [...allChannels];
-            
-            // Tab filtering
-            if (currentTab === "favorites") {
-                // Handle favorites async - simplified for now
-                return allChannels.slice(0, 20); // Placeholder
-            } else if (currentTab === "recent") {
-                // Handle recent async - simplified
-                return allChannels.slice(0, 20);
-            } else if (currentTab === "groups" && currentGroup) {
-                // Handle groups
-            }
-            
-            // Apply filters
-            if (countryFilter.value !== "all") {
-                filtered = filtered.filter(c => c.country === countryFilter.value);
-            }
-            
-            if (languageFilter.value !== "all") {
-                filtered = filtered.filter(c => c.language === languageFilter.value);
-            }
-            
-            if (categoryFilter.value !== "all") {
-                filtered = filtered.filter(c => c.category === categoryFilter.value);
-            }
-            
-            // Search
-            if (searchInput.value) {
-                const query = searchInput.value.toLowerCase();
-                filtered = filtered.filter(c => 
-                    c.name.toLowerCase().includes(query) ||
-                    c.country.toLowerCase().includes(query) ||
-                    c.category.toLowerCase().includes(query)
-                );
-            }
-            
-            // Sort
-            if (currentSort === "name") {
-                filtered.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (currentSort === "country") {
-                filtered.sort((a, b) => a.country.localeCompare(b.country));
-            }
-            
-            return filtered;
-        }
-
-        // ========== POPULATE FILTERS ==========
-        function populateFilters() {
-            const countries = [...new Set(allChannels.map(c => c.country))].sort();
-            countries.forEach(country => {
-                if (country && country !== "Unknown") {
-                    const option = document.createElement("option");
-                    option.value = country;
-                    option.textContent = country;
-                    countryFilter.appendChild(option);
-                }
-            });
-        }
-
-        // ========== TELEGRAM FEATURES ==========
-        function setupTelegramFeatures() {
-            // Back button
-            tg.BackButton.onClick(() => {
-                if (currentTab !== "all") {
-                    currentTab = "all";
-                    renderChannels();
-                    tg.BackButton.hide();
-                }
-            });
-            
-            // Main button
-            tg.MainButton.onClick(() => {
-                if (lastPlayed) {
-                    playStream(lastPlayed);
-                }
-            });
-            
-            // Cloud storage sync
-            tg.CloudStorage?.getItem('favorites', (err, data) => {
-                if (data) {
-                    const urls = JSON.parse(data);
-                    // Sync favorites
-                }
-            });
-            
-            // Biometric auth
-            if (tg.BiometricManager?.isInited) {
-                tg.BiometricManager.requestAccess({
-                    reason: "Lock favorites with biometrics"
-                });
-            }
-        }
-
-        // ========== GESTURES ==========
-        function setupGestures() {
-            const hammertime = new Hammer(document.body);
-            
-            hammertime.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
-            
-            hammertime.on('swipeleft', () => {
-                // Next channel
-                const filtered = getFilteredChannels();
-                const currentIndex = filtered.findIndex(c => c.url === lastPlayed?.url);
-                if (currentIndex > -1 && currentIndex < filtered.length - 1) {
-                    playStream(filtered[currentIndex + 1]);
-                }
-            });
-            
-            hammertime.on('swiperight', () => {
-                // Previous channel
-                const filtered = getFilteredChannels();
-                const currentIndex = filtered.findIndex(c => c.url === lastPlayed?.url);
-                if (currentIndex > 0) {
-                    playStream(filtered[currentIndex - 1]);
-                }
-            });
-        }
-
-        // ========== VOICE SEARCH ==========
-        function startVoiceSearch() {
-            if ('webkitSpeechRecognition' in window) {
-                const recognition = new webkitSpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                
-                recognition.onstart = () => {
-                    showToast("🎤 Listening...", "info");
-                };
-                
-                recognition.onresult = (event) => {
-                    const transcript = event.results[0][0].transcript;
-                    searchInput.value = transcript;
-                    renderChannels();
-                    haptic.notification('success');
-                };
-                
-                recognition.start();
-            } else {
-                showToast("Voice search not supported", "error");
-            }
-        }
-
-        // ========== TOAST NOTIFICATIONS ==========
-        function showToast(message, type = "info") {
-            toast.textContent = message;
-            toast.className = `show ${type}`;
-            
+        // ========== TOAST ==========
+        function showToast(text, duration = 2000) {
+            toast.textContent = text;
+            toast.classList.add('show');
             setTimeout(() => {
-                toast.className = '';
-            }, 3000);
+                toast.classList.remove('show');
+            }, duration);
         }
 
-        // ========== SETTINGS ==========
-        async function loadSettings() {
-            const settings = await db.settings.toArray();
+        // ========== WAKE LOCK ==========
+        if ('wakeLock' in navigator) {
+            let wakeLock = null;
             
-            settings.forEach(s => {
-                if (s.key === 'theme') {
-                    document.documentElement.style.setProperty('--accent', s.value);
-                } else if (s.key === 'fontSize') {
-                    document.documentElement.style.setProperty('--font-size', s.value + 'px');
-                } else if (s.key === 'privateMode') {
-                    privateMode = s.value;
-                } else if (s.key === 'pinEnabled') {
-                    pinEnabled = s.value;
-                } else if (s.key === 'pinCode') {
-                    pinCode = s.value;
+            video.addEventListener('play', async () => {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                } catch (err) {}
+            });
+            
+            video.addEventListener('pause', () => {
+                if (wakeLock) {
+                    wakeLock.release();
+                    wakeLock = null;
                 }
             });
-        }
-
-        // ========== PRIVACY MODE ==========
-        async function togglePrivateMode() {
-            privateMode = !privateMode;
-            await db.settings.put({ key: 'privateMode', value: privateMode });
-            
-            if (privateMode) {
-                await db.history.clear();
-                showToast("🔒 Private mode enabled", "success");
-            } else {
-                showToast("🔓 Private mode disabled", "info");
-            }
-        }
-
-        // ========== PIN LOCK ==========
-        function showPinLock() {
-            document.getElementById('pinModal').classList.add('active');
-        }
-
-        // ========== RESTORE SESSION ==========
-        async function restoreSession() {
-            const last = await db.stats.get('lastPlayed');
-            if (last && !privateMode) {
-                const channel = allChannels.find(c => c.url === last.value);
-                if (channel) {
-                    setTimeout(() => playStream(channel), 1000);
-                }
-            }
         }
 
         // ========== EVENT LISTENERS ==========
-        function setupEventListeners() {
-            // Search
-            searchInput.addEventListener('input', debounce(renderChannels, 300));
-            
-            // Voice search
-            document.getElementById('voiceSearchBtn').onclick = startVoiceSearch;
-            
-            // Filters
-            countryFilter.onchange = renderChannels;
-            languageFilter.onchange = renderChannels;
-            categoryFilter.onchange = renderChannels;
-            
-            // View toggles
-            document.getElementById('gridViewBtn').onclick = () => {
-                currentView = 'grid';
-                document.getElementById('gridViewBtn').classList.add('active');
-                document.getElementById('listViewBtn').classList.remove('active');
+        searchInput.addEventListener('input', () => {
+            renderChannels();
+        });
+
+        countryFilter.addEventListener('change', renderChannels);
+        categoryFilter.addEventListener('change', renderChannels);
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentTab = tab.dataset.type;
                 renderChannels();
-            };
-            
-            document.getElementById('listViewBtn').onclick = () => {
-                currentView = 'list';
-                document.getElementById('listViewBtn').classList.add('active');
-                document.getElementById('gridViewBtn').classList.remove('active');
-                renderChannels();
-            };
-            
-            // Sort
-            document.getElementById('sortBtn').onclick = () => {
-                currentSort = currentSort === 'name' ? 'country' : 'name';
-                renderChannels();
-            };
-            
-            // Tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.onclick = () => {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    currentTab = tab.dataset.type;
-                    
-                    if (currentTab !== 'all') {
-                        tg.BackButton.show();
-                    } else {
-                        tg.BackButton.hide();
-                    }
-                    
-                    renderChannels();
-                };
-            });
-            
-            // Video controls
-            document.getElementById('playPauseBtn').onclick = () => {
-                if (video.paused) {
-                    video.play();
-                    document.getElementById('playPauseBtn').textContent = '⏸️';
-                } else {
-                    video.pause();
-                    document.getElementById('playPauseBtn').textContent = '▶️';
+                
+                // Telegram back button
+                if (currentTab !== 'all' && tg?.BackButton) {
+                    tg.BackButton.show();
+                } else if (tg?.BackButton) {
+                    tg.BackButton.hide();
                 }
-            };
-            
-            document.getElementById('audioOnlyBtn').onclick = () => {
-                video.muted = !video.muted;
-                document.getElementById('audioOnlyBtn').textContent = video.muted ? '🔇' : '🔊';
-            };
-            
-            document.getElementById('pipBtn').onclick = togglePiP;
-            
-            document.getElementById('speedBtn').onclick = () => {
-                const speeds = [1, 1.5, 2, 0.5];
-                const current = speeds.indexOf(video.playbackRate);
-                const next = (current + 1) % speeds.length;
-                video.playbackRate = speeds[next];
-                document.getElementById('speedBtn').textContent = speeds[next] + 'x';
-            };
-            
-            document.getElementById('fullscreenBtn').onclick = () => {
-                if (video.requestFullscreen) {
-                    video.requestFullscreen();
-                }
-            };
-            
-            // Progress bar
-            video.addEventListener('timeupdate', () => {
-                const progress = (video.currentTime / video.duration) * 100 || 0;
-                document.getElementById('progressFill').style.width = progress + '%';
             });
-            
-            document.getElementById('progressBar').onclick = (e) => {
-                const rect = e.target.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-                video.currentTime = pos * video.duration;
-            };
-            
-            // Bottom bar
-            document.getElementById('sleepTimerBtn').onclick = () => {
-                const minutes = prompt("Sleep timer (minutes):", "30");
-                if (minutes) setSleepTimer(parseInt(minutes));
-            };
-            
-            document.getElementById('equalizerBtn').onclick = () => {
-                setupEqualizer();
-                document.getElementById('equalizerModal').classList.add('active');
-            };
-            
-            document.getElementById('statsBtn').onclick = async () => {
-                await updateStats();
-                document.getElementById('statsModal').classList.add('active');
-            };
-            
-            document.getElementById('settingsBtn').onclick = () => {
-                document.getElementById('settingsModal').classList.add('active');
-            };
-            
-            // Settings
-            document.querySelectorAll('[data-setting]').forEach(el => {
-                el.onclick = async () => {
-                    const setting = el.dataset.setting;
-                    
-                    switch(setting) {
-                        case 'theme':
-                            const themes = ['#00c3ff', '#ff4444', '#00c851', '#aa00ff'];
-                            const current = document.documentElement.style.getPropertyValue('--accent');
-                            const next = themes[(themes.indexOf(current) + 1) % themes.length] || themes[0];
-                            document.documentElement.style.setProperty('--accent', next);
-                            await db.settings.put({ key: 'theme', value: next });
-                            break;
-                            
-                        case 'contrast':
-                            document.body.classList.toggle('high-contrast');
-                            break;
-                            
-                        case 'colorblind':
-                            const modes = ['protanopia', 'deuteranopia', 'tritanopia'];
-                            document.body.className = modes[(modes.indexOf(document.body.className) + 1) % modes.length] || '';
-                            break;
-                            
-                        case 'font':
-                            const sizes = [14, 16, 18, 20];
-                            const currentSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--font-size'));
-                            const nextSize = sizes[(sizes.indexOf(currentSize) + 1) % sizes.length] || 16;
-                            document.documentElement.style.setProperty('--font-size', nextSize + 'px');
-                            await db.settings.put({ key: 'fontSize', value: nextSize });
-                            break;
-                            
-                        case 'privacy':
-                            await togglePrivateMode();
-                            break;
-                            
-                        case 'cache':
-                            const size = await db.channels.count();
-                            if (confirm(`Clear cache? (${size} channels cached)`)) {
-                                await db.channels.clear();
-                                showToast("Cache cleared", "success");
-                            }
-                            break;
-                            
-                        case 'backup':
-                            const data = await db.favorites.toArray();
-                            const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'favorites_backup.json';
-                            a.click();
-                            break;
-                            
-                        case 'clear':
-                            if (confirm("Clear all data?")) {
-                                await db.delete();
-                                localStorage.clear();
-                                location.reload();
-                            }
-                            break;
-                    }
-                };
-            });
-            
-            // Close modals
-            document.querySelectorAll('.close-btn').forEach(btn => {
-                btn.onclick = () => {
-                    btn.closest('.modal').classList.remove('active');
-                };
-            });
-            
-            // PIN pad
-            document.querySelectorAll('.pin-btn').forEach(btn => {
-                btn.onclick = (e) => {
-                    const input = document.getElementById('pinInput');
-                    const val = e.target.textContent;
-                    
-                    if (val === '⌫') {
-                        input.value = input.value.slice(0, -1);
-                    } else if (val === '✓') {
-                        if (input.value === pinCode) {
-                            document.getElementById('pinModal').classList.remove('active');
-                            showToast("✅ Access granted", "success");
-                        } else {
-                            showToast("❌ Wrong PIN", "error");
-                            input.value = '';
-                        }
-                    } else {
-                        if (input.value.length < 4) {
-                            input.value += val;
-                        }
-                    }
-                };
+        });
+
+        // Video controls
+        document.getElementById('playPauseBtn').addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+                document.getElementById('playPauseBtn').textContent = '⏸️';
+            } else {
+                video.pause();
+                document.getElementById('playPauseBtn').textContent = '▶️';
+            }
+        });
+
+        document.getElementById('audioOnlyBtn').addEventListener('click', () => {
+            video.muted = !video.muted;
+            document.getElementById('audioOnlyBtn').textContent = video.muted ? '🔇' : '🔊';
+        });
+
+        document.getElementById('fullscreenBtn').addEventListener('click', enterFullscreen);
+        document.getElementById('fullscreenBtn2').addEventListener('click', enterFullscreen);
+
+        document.getElementById('sleepTimerBtn').addEventListener('click', () => {
+            setSleepTimer(30);
+        });
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            const stats = `Channels: ${allChannels.length}\nFavorites: ${favorites.size}\nRecent: ${recentChannels.length}`;
+            alert(stats);
+        });
+
+        // Progress bar
+        video.addEventListener('timeupdate', () => {
+            const progress = (video.currentTime / video.duration) * 100 || 0;
+            document.getElementById('progressFill').style.width = progress + '%';
+        });
+
+        document.getElementById('progressBar').addEventListener('click', (e) => {
+            const rect = e.target.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            video.currentTime = pos * video.duration;
+        });
+
+        // Handle back button
+        if (tg?.BackButton) {
+            tg.BackButton.onClick(() => {
+                currentTab = 'all';
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('[data-type="all"]').classList.add('active');
+                renderChannels();
+                tg.BackButton.hide();
             });
         }
 
-        // ========== UTILITIES ==========
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+        // Orientation change
+        screen.orientation?.addEventListener('change', () => {
+            if (screen.orientation.type.includes('landscape') && !video.paused) {
+                enterFullscreen();
+            }
+        });
 
-        // ========== START ==========
-        init();
+        // Load data
+        loadFavorites();
+        loadRecent();
+        loadChannels();
     </script>
 </body>
 </html>
